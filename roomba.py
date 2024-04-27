@@ -1,5 +1,5 @@
 from time import time
-from datetime import datetime
+import datetime
 import subprocess
 import os
 from login_data import IRBT_LOGIN, IRBT_PASSWORD
@@ -24,17 +24,13 @@ def stop():
 
 
 def start():
-    if 7 <= datetime.now().hour < 20:
+    if 7 <= datetime.datetime.now().hour < 20:
         with open("/home/pi/Programming/roomba/disabled_until", "r") as f:
             disabled_until = int(f.read())
             if disabled_until < int(time()):
-                if get_cleaning_time_today() < 45:
+                t = datetime.datetime.now() - datetime.timedelta(hours=6)
+                if get_cleaning_time_since(t) <= 20:
                     force_start()
-
-
-def get_cleaning_time_today():
-    last_midnight = datetime.combine(datetime.now().date(), datetime.min.time())
-    return get_cleaning_time_since(last_midnight)
 
 
 def get_cleaning_time_since(since):
