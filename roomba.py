@@ -23,14 +23,25 @@ def stop():
     subprocess.run("irbt-cli.py -c dock".split(), capture_output=True, text=True)
 
 
+def enabled():
+    with open("/home/pi/Programming/roomba/disabled_until", "r") as f:
+        disabled_until = int(f.read())
+        return disabled_until < int(time())
+
+
 def start():
     if 7 <= datetime.datetime.now().hour < 20:
-        with open("/home/pi/Programming/roomba/disabled_until", "r") as f:
-            disabled_until = int(f.read())
-            if disabled_until < int(time()):
-                t = datetime.datetime.now() - datetime.timedelta(hours=6)
-                if get_cleaning_time_since(t) <= 20:
-                    force_start()
+        if enabled():
+            t = datetime.datetime.now() - datetime.timedelta(hours=6)
+            if get_cleaning_time_since(t) <= 20:
+                force_start()
+
+
+def start_if_really_needs_to():
+    if enabled():
+        t = datetime.datetime.now() - datetime.timedelta(hours=48)
+        if get_cleaning_time_since(t) <= 5:
+            force_start()
 
 
 def get_cleaning_time_since(since):
