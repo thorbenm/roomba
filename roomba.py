@@ -37,6 +37,19 @@ def start():
                 force_start()
 
 
+def clean_room(room):
+    d = {
+          "flur": 2,
+          "schlafzimmer": 12,
+          "esszimmer": 13,
+          "wohnzimmer": 14,
+          "kinderzimmer": 16,
+          "kuche": 15,
+        }
+    room_id = d[room.lower()]
+    subprocess.run(f"irbt-cli.py -r {room_id} -c start".split(), capture_output=True, text=True)
+
+
 def start_if_really_needs_to():
     if enabled():
         t = datetime.datetime.now() - datetime.timedelta(hours=48)
