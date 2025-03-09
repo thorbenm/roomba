@@ -38,15 +38,15 @@ def start():
 
 
 def clean_room(room):
-    d = {
-          "flur": 2,
-          "schlafzimmer": 12,
-          "esszimmer": 13,
-          "wohnzimmer": 14,
-          "kinderzimmer": 16,
-          "kuche": 15,
-        }
-    room_id = d[room.lower()]
+    output = subprocess.check_output('irbt-cli.py -l', shell=True, text=True)
+
+    room_map = {}
+    for line in output.splitlines():
+        name, id_str = line.split(': ')
+        name = name.lower().replace("'", "")
+        room_map[name] = int(id_str)
+
+    room_id = room_map[room.lower()]
     subprocess.run(f"irbt-cli.py -r {room_id} -c start".split(), capture_output=True, text=True)
 
 
