@@ -1,4 +1,4 @@
-from time import time
+from time import time, sleep
 import datetime
 import subprocess
 import os
@@ -20,6 +20,7 @@ def force_start():
 
 def stop():
     subprocess.run("irbt-cli.py -c stop".split(), capture_output=True, text=True)
+    sleep(5.0)
     subprocess.run("irbt-cli.py -c dock".split(), capture_output=True, text=True)
 
 
