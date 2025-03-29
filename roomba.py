@@ -33,7 +33,7 @@ def enabled():
 def start():
     if 7 <= datetime.datetime.now().hour < 20:
         if enabled():
-            t = datetime.datetime.now() - datetime.timedelta(hours=6)
+            t = datetime.datetime.now() - datetime.timedelta(hours=18)
             if get_cleaning_time_since(t) <= 20:
                 force_start()
 
@@ -53,7 +53,7 @@ def clean_room(room):
 
 def start_if_really_needs_to():
     if enabled():
-        t = datetime.datetime.now() - datetime.timedelta(hours=48)
+        t = datetime.datetime.now() - datetime.timedelta(hours=72)
         if get_cleaning_time_since(t) <= 5:
             force_start()
 
