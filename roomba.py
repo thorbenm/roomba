@@ -1,9 +1,12 @@
+#!/usr/bin/env python3
+
 from time import time, sleep
 import datetime
 import subprocess
 import os
 from login_data import IRBT_LOGIN, IRBT_PASSWORD
 import json
+import argparse
 
 
 def login():
@@ -15,13 +18,13 @@ login()
 
 
 def force_start():
-    subprocess.run("irbt-cli.py -c start".split(), capture_output=True, text=True)
+    subprocess.run("/home/pi/.local/bin/irbt-cli.py -c start".split(), capture_output=True, text=True)
 
 
 def stop():
-    subprocess.run("irbt-cli.py -c stop".split(), capture_output=True, text=True)
-    sleep(5.0)
-    subprocess.run("irbt-cli.py -c dock".split(), capture_output=True, text=True)
+    subprocess.run("/home/pi/.local/bin/irbt-cli.py -c stop".split(), capture_output=True, text=True)
+    sleep(60.0)
+    subprocess.run("/home/pi/.local/bin/irbt-cli.py -c dock".split(), capture_output=True, text=True)
 
 
 def enabled():
@@ -39,7 +42,7 @@ def start():
 
 
 def clean_room(room):
-    output = subprocess.check_output('irbt-cli.py -l', shell=True, text=True)
+    output = subprocess.check_output('/home/pi/.local/bin/irbt-cli.py -l', shell=True, text=True)
 
     room_map = {}
     for line in output.splitlines():
@@ -48,7 +51,7 @@ def clean_room(room):
         room_map[name] = int(id_str)
 
     room_id = room_map[room.lower()]
-    subprocess.run(f"irbt-cli.py -r {room_id} -c start".split(), capture_output=True, text=True)
+    subprocess.run(f"/home/pi/.local/bin/irbt-cli.py -r {room_id} -c start".split(), capture_output=True, text=True)
 
 
 def start_if_really_needs_to():
@@ -60,7 +63,7 @@ def start_if_really_needs_to():
 
 def get_cleaning_time_since(since):
     # in minutes
-    output = subprocess.check_output('irbt-cli.py -M', shell=True, text=True)
+    output = subprocess.check_output('/home/pi/.local/bin/irbt-cli.py -M', shell=True, text=True)
     data = json.loads(output)
     timestamp_threshold = since.timestamp()
     total_minutes = sum(item['durationM'] for item in data if timestamp_threshold <= item['timestamp'] )
@@ -80,3 +83,19 @@ def disable_for(time_string):
         t = int(value) * 60 * 60 * 24
     with open("/home/pi/Programming/roomba/disabled_until", "w") as f:
         f.write(str(int(time()) + t))
+
+
+if __name__ == "__main__":
+    parser = argparse.ArgumentParser()
+    parser.add_argument("--force-start", action="store_true")
+    parser.add_argument("--stop", action="store_true")
+    parser.add_argument("--start", action="store_true")
+
+    args = parser.parse_args()
+
+    if args.force_start:
+        force_start()
+    elif args.stop:
+        stop()
+    elif args.start:
+        start()
