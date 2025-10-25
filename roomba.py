@@ -85,11 +85,27 @@ def disable_for(time_string):
         f.write(str(int(time()) + t))
 
 
+def wait_until_door_opens():
+    sensor_id = "3482ecac-1562-413a-b519-46ec7b5e5883"
+    start_time = time()
+    while time() - start_time < 2*60*60:
+        cmd = ["journalctl", "-u", "phue_server", f"--since=@{int(start_time)}", "--no-pager", "-n", "100"]
+        result = subprocess.run(cmd, capture_output=True, text=True, check=False)
+        output_lines = (result.stdout + result.stderr).splitlines()
+        message = f"mark_motion_detected {sensor_id}"
+        for line in output_lines:
+            if message in line:
+                return True
+        sleep(5)
+    return False
+
+
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
     parser.add_argument("--force-start", action="store_true")
     parser.add_argument("--stop", action="store_true")
     parser.add_argument("--start", action="store_true")
+    parser.add_argument("--start-when-door-opens", action="store_true")
 
     args = parser.parse_args()
 
@@ -99,3 +115,6 @@ if __name__ == "__main__":
         stop()
     elif args.start:
         start()
+    elif args.start_when_door_opens:
+        if wait_until_door_opens():
+            force_start()
